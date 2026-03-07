@@ -5,8 +5,8 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'NexusFolio | Yadu Krishnan K S',
-  description: 'Showcase, Shoot, & Automate. The Creative Portfolio of Yadu Krishnan K S.',
+  title: 'Yadu Krishnan K S | Multimedia Specialist & AI Strategist',
+  description: 'Abu Dhabi based Multimedia Specialist specializing in high-impact visual storytelling, AI-enhanced workflows, and cinematic production for luxury brands.',
 };
 
 export default function RootLayout({

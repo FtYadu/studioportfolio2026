@@ -5,7 +5,7 @@ import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { MousePointer2, Sparkles, ChevronDown } from 'lucide-react';
+import { MousePointer2, Sparkles, ChevronDown, MapPin, Cpu } from 'lucide-react';
 
 export const Hero = () => {
   const { scrollY } = useScroll();
@@ -19,7 +19,7 @@ export const Hero = () => {
     <section className="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-6 overflow-hidden bg-[#F5F5F7]">
       {/* Background Decorative Text */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none select-none opacity-[0.03] font-headline text-[25vw] font-black leading-none">
-        NEXUS
+        YADU
       </div>
 
       <motion.div
@@ -32,19 +32,26 @@ export const Hero = () => {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-black/5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-8"
+          className="flex flex-col items-center gap-4 mb-8"
         >
-          <Sparkles size={12} className="text-[#FF5E00]" />
-          Visual Systems Engineer
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-black/5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+            <Sparkles size={12} className="text-[#FF5E00]" />
+            Technical + Creative Hybrid
+          </div>
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-40">
+            <MapPin size={12} />
+            Based in Abu Dhabi, UAE
+          </div>
         </motion.div>
         
-        <h1 className="font-headline text-6xl md:text-[10rem] mb-8 text-[#1D1D1F] tracking-tighter leading-[0.85] font-black">
+        <h1 className="font-headline text-6xl md:text-[9.5rem] mb-8 text-[#1D1D1F] tracking-tighter leading-[0.85] font-black">
           Shoot, Edit, <br />
           <span className="text-primary italic">Automate.</span>
         </h1>
         
-        <p className="text-[#4A4A4A] text-lg md:text-2xl font-medium max-w-2xl mx-auto opacity-70 mb-16 leading-relaxed">
-          The nexus of premium visual production and custom generative AI pipelines for the next generation of creative brands.
+        <p className="text-[#4A4A4A] text-lg md:text-2xl font-medium max-w-3xl mx-auto opacity-70 mb-16 leading-relaxed">
+          Multimedia Specialist blending <span className="text-black font-bold italic">Sony Cine production</span> with <span className="text-black font-bold italic">GenAI workflows</span>. 
+          B.Tech Engineer by training, Visual Storyteller by nature.
         </p>
 
         <motion.div 
@@ -52,12 +59,12 @@ export const Hero = () => {
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           className="flex flex-col items-center gap-4 opacity-30"
         >
-          <span className="text-[10px] font-bold uppercase tracking-[0.3em]">Explore Work</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.3em]">Discover The Portfolio</span>
           <ChevronDown size={20} />
         </motion.div>
       </motion.div>
 
-      <div className="relative mt-24 w-full max-w-4xl h-[500px] flex items-center justify-center z-10">
+      <div className="relative mt-24 w-full max-w-5xl h-[500px] flex items-center justify-center z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full h-full p-4">
           {cards.map((card, i) => (
             <motion.div
@@ -97,16 +104,16 @@ export const Hero = () => {
           style={{ y: y1 }}
           className="absolute -top-12 -left-12 px-6 py-3 bg-[#FF5E00] text-white rounded-full text-xs font-bold shadow-2xl rotate-[-8deg] border border-white/20 flex items-center gap-2"
         >
-          <Sparkles size={14} />
-          @Generative_Workflows
+          <Cpu size={14} />
+          B.Tech & Technical AI
         </motion.div>
         
         <motion.div
           style={{ y: y2 }}
           className="absolute top-40 -right-8 px-6 py-3 bg-[#CCFF00] text-black rounded-full text-xs font-bold shadow-2xl rotate-[12deg] border border-black/10 flex items-center gap-2"
         >
-          <MousePointer2 size={14} />
-          @Interactive_UI
+          <Sparkles size={14} />
+          Sony Cine & Remotion
         </motion.div>
       </div>
 
