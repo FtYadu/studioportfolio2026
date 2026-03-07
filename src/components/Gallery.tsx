@@ -1,17 +1,13 @@
+
 "use client";
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { useCollection, useFirestore, useMemoFirebase, useUser, setDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
-import { Camera, Plus, Info, X, Maximize2, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Camera, Plus, Sparkles, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 const CATEGORIES = ["All", "Hospitality", "Automotive", "Events", "AI Workflow", "Luxury Retail"];
@@ -33,9 +29,27 @@ export const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [hoverIndex, setHoverIndex] = useState(-1);
   const [openIndex, setOpenIndex] = useState(-1);
-  const [shift, setShift] = useState(0);
+  const [manualShift, setManualShift] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Scroll Parallax Logic
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  });
+
+  const scrollX = useTransform(scrollYProgress, [0, 1], [300, -300]);
+  const smoothScrollX = useSpring(scrollX, { stiffness: 60, damping: 20 });
+  const [currentScrollX, setCurrentScrollX] = useState(0);
+
+  useEffect(() => {
+    return smoothScrollX.onChange((v) => setCurrentScrollX(v));
+  }, [smoothScrollX]);
+
+  // Determine final shift based on state
+  const finalShift = openIndex !== -1 ? manualShift : (hoverIndex !== -1 ? 0 : currentScrollX);
 
   const portfolioId = user?.uid || 'public-portfolio';
 
@@ -72,7 +86,6 @@ export const Gallery = () => {
     const rect = containerRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     
-    // Find closest item based on X position
     let closestIdx = -1;
     let minDistance = Infinity;
 
@@ -105,13 +118,13 @@ export const Gallery = () => {
     const delta = containerCenterX - itemCenterX;
     const maxShift = containerRect.width * 0.35;
     const clamped = Math.max(-maxShift, Math.min(maxShift, delta));
-    setShift(clamped);
+    setManualShift(clamped);
   };
 
   const handleItemClick = (idx: number) => {
     if (openIndex === idx) {
       setOpenIndex(-1);
-      setShift(0);
+      setManualShift(0);
     } else {
       setOpenIndex(idx);
       setTimeout(() => centerItem(idx), 50);
@@ -121,7 +134,7 @@ export const Gallery = () => {
   const getCardClasses = (idx: number) => {
     const base = "gallery-3d-item";
     if (openIndex === idx) return cn(base, "is-open");
-    if (openIndex !== -1) return base; // Other items when one is open
+    if (openIndex !== -1) return base;
 
     if (hoverIndex === idx) return cn(base, "is-hover-main");
     const diff = idx - hoverIndex;
@@ -138,9 +151,13 @@ export const Gallery = () => {
   };
 
   return (
-    <section className="px-6 py-32 max-w-[1800px] mx-auto min-h-screen overflow-hidden" id="work">
+    <section ref={sectionRef} className="px-6 py-32 max-w-[1800px] mx-auto min-h-screen overflow-hidden" id="work">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-24 px-12">
-        <div>
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+        >
           <div className="inline-flex items-center gap-2 text-primary font-bold uppercase tracking-widest text-xs mb-4">
             <Camera size={14} />
             Showcase Exhibition
@@ -148,7 +165,7 @@ export const Gallery = () => {
           <h2 className="text-6xl md:text-9xl font-headline text-[#4A4A4A] tracking-tighter leading-none">
             3D <span className="text-primary italic">Portfolio</span>
           </h2>
-        </div>
+        </motion.div>
         
         <div className="flex flex-wrap items-center gap-3">
           {CATEGORIES.map((cat) => (
@@ -157,7 +174,7 @@ export const Gallery = () => {
               onClick={() => {
                 setActiveCategory(cat);
                 setOpenIndex(-1);
-                setShift(0);
+                setManualShift(0);
               }}
               className={cn(
                 "px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border",
@@ -186,7 +203,7 @@ export const Gallery = () => {
             hoverIndex !== -1 && "hovering",
             openIndex !== -1 && "is-open"
           )}
-          style={{ '--gallery-shift': `${shift}px` } as any}
+          style={{ '--gallery-shift': `${finalShift}px` } as any}
           onPointerMove={handlePointerMove}
           onPointerLeave={() => {
             if (openIndex === -1) setHoverIndex(-1);
@@ -231,8 +248,6 @@ export const Gallery = () => {
                     </div>
                   </div>
                 </div>
-                
-                {/* Edge Lighting Effect */}
                 <div className="absolute inset-0 border-[0.5px] border-white/5 pointer-events-none rounded-[inherit]" />
               </div>
             ))
@@ -243,11 +258,11 @@ export const Gallery = () => {
       <div className="mt-20 flex justify-center gap-12 text-[10px] font-bold uppercase tracking-[0.4em] opacity-30 px-12 text-center">
         <div className="flex items-center gap-2">
           <ChevronLeft size={12} />
-          Scroll & Hover
+          Scroll & Explore
           <ChevronRight size={12} />
         </div>
         <div className="w-px h-4 bg-black/20" />
-        <div>Click To Expand</div>
+        <div>Click To Focus</div>
       </div>
     </section>
   );
