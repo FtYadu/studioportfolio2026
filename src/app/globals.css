@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -26,6 +25,11 @@
     --ring: 255 23% 39%;
     --radius: 2rem;
     --lime: 72 100% 50%;     /* #CCFF00 - Lime Green */
+    
+    /* 3D Gallery Variables */
+    --gallery-index: calc(1vw + 1vh);
+    --gallery-transition: cubic-bezier(.1,.7,0,1);
+    --gallery-gap-base: .4rem;
   }
 }
 
@@ -38,6 +42,79 @@
     background-image: 
       radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px);
     background-size: 40px 40px;
+  }
+}
+
+/* 3D Gallery Engine */
+.gallery-3d-wrapper {
+  @apply flex items-center justify-center overflow-visible py-20;
+}
+
+.gallery-3d-items {
+  display: flex;
+  gap: var(--gallery-gap, var(--gallery-gap-base));
+  perspective: calc(var(--gallery-index) * 35);
+  perspective-origin: 50% 50%;
+  transform: translateX(var(--gallery-shift, 0px));
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform .6s var(--gallery-transition);
+  padding-inline: 48px;
+  margin-inline: -48px;
+}
+
+.gallery-3d-items.hovering {
+  --gallery-gap: calc(var(--gallery-gap-base) / 2);
+}
+
+.gallery-3d-item {
+  position: relative;
+  width: calc(var(--gallery-index) * 3.5);
+  height: calc(var(--gallery-index) * 18);
+  background: #222 center/cover no-repeat;
+  cursor: pointer;
+  transition: transform 1.25s var(--gallery-transition), width .5s var(--gallery-transition), filter .5s ease;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, width;
+  outline: none;
+  border-radius: 100px;
+  flex: 0 0 auto;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* Hover Layout States */
+.gallery-3d-item.is-hover-main { transform: translateZ(calc(var(--gallery-index) * 10)); z-index: 10; }
+.gallery-3d-item.is-right-1   { transform: translateZ(calc(var(--gallery-index) * 8.5))  rotateY(35deg);  z-index: 9; }
+.gallery-3d-item.is-right-2   { transform: translateZ(calc(var(--gallery-index) * 5.6))  rotateY(40deg);  z-index: 8; }
+.gallery-3d-item.is-right-3   { transform: translateZ(calc(var(--gallery-index) * 2.5))  rotateY(30deg);  z-index: 7; }
+.gallery-3d-item.is-right-4   { transform: translateZ(calc(var(--gallery-index) * 0.6))  rotateY(15deg);  z-index: 6; }
+
+.gallery-3d-item.is-left-1    { transform: translateZ(calc(var(--gallery-index) * 8.5))  rotateY(-35deg); z-index: 9; }
+.gallery-3d-item.is-left-2    { transform: translateZ(calc(var(--gallery-index) * 5.6))  rotateY(-40deg); z-index: 8; }
+.gallery-3d-item.is-left-3    { transform: translateZ(calc(var(--gallery-index) * 2.5))  rotateY(-30deg); z-index: 7; }
+.gallery-3d-item.is-left-4    { transform: translateZ(calc(var(--gallery-index) * 0.6))  rotateY(-15deg); z-index: 6; }
+
+/* Open State */
+.gallery-3d-items.is-open .gallery-3d-item { 
+  transition: transform .8s var(--gallery-transition), width .6s var(--gallery-transition); 
+}
+
+.gallery-3d-item.is-open {
+  width: 40vw;
+  z-index: 100;
+  transform: translateZ(calc(var(--gallery-index) * 10));
+  border-radius: 40px;
+}
+
+@media (max-width: 768px) {
+  .gallery-3d-item {
+    width: calc(var(--gallery-index) * 4);
+    height: calc(var(--gallery-index) * 25);
+  }
+  .gallery-3d-item.is-open {
+    width: 85vw;
   }
 }
 
@@ -60,7 +137,6 @@
   animation: pulse-lime 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -76,30 +152,4 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(89, 77, 122, 0.3);
-}
-
-.columns-1 {
-  column-count: 1;
-}
-
-@media (min-width: 640px) {
-  .sm\:columns-2 {
-    column-count: 2;
-  }
-}
-
-@media (min-width: 1024px) {
-  .lg\:columns-3 {
-    column-count: 3;
-  }
-}
-
-@media (min-width: 1280px) {
-  .xl\:columns-4 {
-    column-count: 4;
-  }
-}
-
-.break-inside-avoid {
-  break-inside: avoid;
 }
