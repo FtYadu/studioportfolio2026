@@ -1,0 +1,29 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-1",
+      "description": "Cinematic visual",
+      "imageUrl": "https://picsum.photos/seed/101/600/800",
+      "imageHint": "cinematic photography"
+    },
+    {
+      "id": "hero-2",
+      "description": "AI Workspace",
+      "imageUrl": "https://picsum.photos/seed/102/600/800",
+      "imageHint": "tech workspace"
+    },
+    {
+      "id": "hero-3",
+      "description": "Camera Gear",
+      "imageUrl": "https://picsum.photos/seed/103/600/800",
+      "imageHint": "professional camera"
+    },
+    {
+      "id": "hero-4",
+      "description": "Digital Abstract",
+      "imageUrl": "https://picsum.photos/seed/104/600/800",
+      "imageHint": "abstract digital"
+    }
+  ]
+}
