@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { Sparkles, Info, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Info, CheckCircle2, Maximize2 } from 'lucide-react';
 import { generateAssetMetadata } from '@/ai/flows/generate-asset-metadata-flow';
 import { doc } from 'firebase/firestore';
 import { useFirestore, useUser, updateDocumentNonBlocking } from '@/firebase';
@@ -84,7 +84,7 @@ export const AssetCard = ({ asset, userId }: AssetCardProps) => {
       onMouseLeave={() => setIsHovered(false)}
       className="relative w-full rounded-[2.5rem] bg-white overflow-hidden shadow-lg group cursor-pointer transition-all duration-500 ease-out border border-black/5"
       style={{
-        zIndex: isHovered ? 50 : 1,
+        zIndex: isHovered ? 10 : 1,
       }}
       whileHover={{ scale: 1.02 }}
     >
@@ -93,7 +93,7 @@ export const AssetCard = ({ asset, userId }: AssetCardProps) => {
           src={asset.url}
           alt={asset.caption}
           fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          className="object-cover transition-transform duration-1000 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         
@@ -118,44 +118,43 @@ export const AssetCard = ({ asset, userId }: AssetCardProps) => {
         <AnimatePresence>
           {isHovered && (
             <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 100, damping: 20 }}
-              className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/95 via-black/60 to-transparent text-white"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-8 text-white"
             >
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex flex-wrap gap-2 max-w-[80%]">
-                  {tags.slice(0, 4).map((tag) => (
-                    <span key={tag} className="text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-full">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex flex-wrap gap-1.5 max-w-[80%]">
+                  {tags.slice(0, 3).map((tag) => (
+                    <span key={tag} className="text-[8px] uppercase font-bold tracking-[0.1em] px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-full">
                       {tag}
                     </span>
                   ))}
-                  {tags.length > 4 && (
-                    <span className="text-[9px] uppercase font-bold tracking-widest px-2 py-1 bg-white/5 rounded-full">
-                      +{tags.length - 4}
-                    </span>
-                  )}
                 </div>
                 
-                {user?.uid === userId && (
-                  <button 
-                    onClick={handleEnrich}
-                    disabled={isEnriching}
-                    className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full hover:scale-110 active:scale-95 transition-transform disabled:opacity-50 shadow-xl border border-white/20"
-                    title="Optimize with AI"
-                  >
-                    <Sparkles size={16} className={isEnriching ? "animate-spin" : ""} />
-                  </button>
-                )}
+                <div className="flex gap-2">
+                  {user?.uid === userId && (
+                    <button 
+                      onClick={handleEnrich}
+                      disabled={isEnriching}
+                      className="w-9 h-9 flex items-center justify-center bg-primary text-white rounded-full hover:scale-110 transition-transform disabled:opacity-50 shadow-xl border border-white/20"
+                      title="Optimize with AI"
+                    >
+                      <Sparkles size={14} className={isEnriching ? "animate-spin" : ""} />
+                    </button>
+                  )}
+                  <div className="w-9 h-9 flex items-center justify-center bg-white/10 backdrop-blur-md text-white rounded-full border border-white/10">
+                    <Maximize2 size={14} />
+                  </div>
+                </div>
               </div>
               
-              <h4 className="text-xl font-headline mb-1 leading-tight line-clamp-2">
+              <h4 className="text-xl font-headline mb-2 leading-tight line-clamp-2">
                 {asset.caption}
               </h4>
-              <p className="text-[10px] uppercase font-bold tracking-widest opacity-50 flex items-center gap-1">
+              <p className="text-[9px] uppercase font-bold tracking-[0.2em] opacity-50 flex items-center gap-2">
                 <Info size={10} />
-                Click to view details
+                Showcase Details
               </p>
             </motion.div>
           )}
