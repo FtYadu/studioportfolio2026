@@ -34,7 +34,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body selection:bg-primary selection:text-white;
   }
 }
 
@@ -55,4 +55,48 @@
 
 .animate-pulse-lime {
   animation: pulse-lime 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom Scrollbar for a premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(89, 77, 122, 0.1);
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(89, 77, 122, 0.3);
+}
+
+.columns-1 {
+  column-count: 1;
+}
+
+@media (min-width: 640px) {
+  .sm\:columns-2 {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:columns-3 {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  .xl\:columns-4 {
+    column-count: 4;
+  }
+}
+
+.break-inside-avoid {
+  break-inside: avoid;
 }

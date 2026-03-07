@@ -3,27 +3,33 @@
   "placeholderImages": [
     {
       "id": "hero-1",
-      "description": "Cinematic visual",
-      "imageUrl": "https://picsum.photos/seed/101/600/800",
-      "imageHint": "cinematic photography"
+      "description": "Premium Cinematic Landscape",
+      "imageUrl": "https://picsum.photos/seed/studio1/800/1200",
+      "imageHint": "cinematic moody landscape"
     },
     {
       "id": "hero-2",
-      "description": "AI Workspace",
-      "imageUrl": "https://picsum.photos/seed/102/600/800",
-      "imageHint": "tech workspace"
+      "description": "Minimal Tech Workspace",
+      "imageUrl": "https://picsum.photos/seed/studio2/800/1000",
+      "imageHint": "minimal workspace setup"
     },
     {
       "id": "hero-3",
-      "description": "Camera Gear",
-      "imageUrl": "https://picsum.photos/seed/103/600/800",
-      "imageHint": "professional camera"
+      "description": "Macro Camera Lens Detail",
+      "imageUrl": "https://picsum.photos/seed/studio3/800/1100",
+      "imageHint": "camera lens macro"
     },
     {
       "id": "hero-4",
-      "description": "Digital Abstract",
-      "imageUrl": "https://picsum.photos/seed/104/600/800",
-      "imageHint": "abstract digital"
+      "description": "Abstract AI Neural Network",
+      "imageUrl": "https://picsum.photos/seed/studio4/800/1200",
+      "imageHint": "abstract tech neural network"
+    },
+    {
+      "id": "hero-5",
+      "description": "Futuristic Production Suite",
+      "imageUrl": "https://picsum.photos/seed/studio5/800/1000",
+      "imageHint": "cyberpunk studio"
     }
   ]
 }

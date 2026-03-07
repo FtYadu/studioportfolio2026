@@ -2,75 +2,116 @@
 "use client";
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { MousePointer2, Sparkles, ChevronDown } from 'lucide-react';
 
 export const Hero = () => {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, -100]);
+  const y2 = useTransform(scrollY, [0, 500], [0, 100]);
+  
   const cards = PlaceHolderImages.slice(0, 4);
-  const rotations = [-15, -5, 5, 15];
+  const rotations = [-12, -4, 4, 12];
 
   return (
-    <section className="relative pt-44 pb-20 px-6 flex flex-col items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-6 overflow-hidden bg-[#F5F5F7]">
+      {/* Background Decorative Text */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none select-none opacity-[0.03] font-headline text-[25vw] font-black leading-none">
+        NEXUS
+      </div>
+
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
+        initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="text-center z-10"
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        className="text-center z-20 relative"
       >
-        <h1 className="font-headline text-5xl md:text-8xl mb-6 text-[#4A4A4A] max-w-5xl leading-[0.9]">
-          Showcase, Shoot, <br />
-          <span className="text-primary">& Automate.</span>
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-black/5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-8"
+        >
+          <Sparkles size={12} className="text-[#FF5E00]" />
+          Visual Systems Engineer
+        </motion.div>
+        
+        <h1 className="font-headline text-6xl md:text-[10rem] mb-8 text-[#1D1D1F] tracking-tighter leading-[0.85] font-black">
+          Shoot, Edit, <br />
+          <span className="text-primary italic">Automate.</span>
         </h1>
-        <p className="text-[#4A4A4A] text-lg md:text-xl font-medium max-w-xl mx-auto opacity-80 mb-12">
-          Merging high-end visual storytelling with cutting-edge AI workflows. 
+        
+        <p className="text-[#4A4A4A] text-lg md:text-2xl font-medium max-w-2xl mx-auto opacity-70 mb-16 leading-relaxed">
+          The nexus of premium visual production and custom generative AI pipelines for the next generation of creative brands.
         </p>
+
+        <motion.div 
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="flex flex-col items-center gap-4 opacity-30"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.3em]">Explore Work</span>
+          <ChevronDown size={20} />
+        </motion.div>
       </motion.div>
 
-      <div className="relative mt-16 w-full max-w-md h-[400px] flex items-center justify-center">
-        {cards.map((card, i) => (
-          <motion.div
-            key={card.id}
-            initial={{ rotate: 0, x: 0, opacity: 0 }}
-            animate={{ 
-              rotate: rotations[i], 
-              x: (i - 1.5) * 60,
-              opacity: 1 
-            }}
-            transition={{ 
-              delay: 0.5 + (i * 0.1), 
-              type: 'spring', 
-              stiffness: 100, 
-              damping: 15 
-            }}
-            className="absolute w-64 h-80 rounded-[2rem] bg-white shadow-2xl overflow-hidden border-4 border-white cursor-pointer hover:z-50 hover:scale-110 transition-transform"
-          >
-            <Image
-              src={card.imageUrl}
-              alt={card.description}
-              fill
-              className="object-cover"
-              data-ai-hint={card.imageHint}
-            />
-          </motion.div>
-        ))}
+      <div className="relative mt-24 w-full max-w-4xl h-[500px] flex items-center justify-center z-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full h-full p-4">
+          {cards.map((card, i) => (
+            <motion.div
+              key={card.id}
+              initial={{ y: 100, opacity: 0, rotate: rotations[i] }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ 
+                delay: 0.6 + (i * 0.1), 
+                type: 'spring', 
+                stiffness: 80, 
+                damping: 20 
+              }}
+              whileHover={{ 
+                y: -20, 
+                scale: 1.05, 
+                rotate: 0,
+                zIndex: 50,
+                transition: { duration: 0.4 }
+              }}
+              className="relative aspect-[3/4] w-full rounded-[2.5rem] bg-white shadow-2xl overflow-hidden border-8 border-white group cursor-pointer"
+            >
+              <Image
+                src={card.imageUrl}
+                alt={card.description}
+                fill
+                className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                data-ai-hint={card.imageHint}
+                sizes="25vw"
+              />
+              <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </motion.div>
+          ))}
+        </div>
 
-        {/* Floating Pills */}
+        {/* Floating AI Pills */}
         <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-10 -left-20 px-4 py-2 bg-[#FF5E00] text-white rounded-full text-xs font-bold shadow-xl rotate-[-12deg]"
+          style={{ y: y1 }}
+          className="absolute -top-12 -left-12 px-6 py-3 bg-[#FF5E00] text-white rounded-full text-xs font-bold shadow-2xl rotate-[-8deg] border border-white/20 flex items-center gap-2"
         >
-          @Cinematic
+          <Sparkles size={14} />
+          @Generative_Workflows
         </motion.div>
+        
         <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute top-20 -right-20 px-4 py-2 bg-[#CCFF00] text-black rounded-full text-xs font-bold shadow-xl rotate-[15deg]"
+          style={{ y: y2 }}
+          className="absolute top-40 -right-8 px-6 py-3 bg-[#CCFF00] text-black rounded-full text-xs font-bold shadow-2xl rotate-[12deg] border border-black/10 flex items-center gap-2"
         >
-          @AIWorkflows
+          <MousePointer2 size={14} />
+          @Interactive_UI
         </motion.div>
       </div>
+
+      {/* Decorative Gradients */}
+      <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
     </section>
   );
 };
