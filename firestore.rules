@@ -1,0 +1,112 @@
+/**
+ * FIRESTORE SECURITY RULES: PROTOTYPING MODE
+ * 
+ * CORE PHILOSOPHY
+ * This ruleset implements a strict user-ownership model for data modification while 
+ * providing open read access for public portfolio display. It leverages Firestore's 
+ * hierarchical pathing to ensure that authorization is fast, cost-effective, and 
+ * independent of external lookups.
+ * 
+ * DATA STRUCTURE
+ * All application data is organized under a user-centric hierarchy:
+ * /users/{userId}/assets/{assetId}
+ * This structure explicitly links every asset to a specific owner via the document path.
+ * 
+ * KEY SECURITY DECISIONS
+ * 1. Authorization Independence: By placing the owner's UID ({userId}) directly in the 
+ *    resource path, we avoid costly get() calls. The rules can verify ownership 
+ *    instantly by comparing the path variable to the requester's authentication token.
+ * 2. Public Visibility: Following the "Interactive Portfolio" requirement, all assets 
+ *    are publicly readable (get and list), allowing unauthenticated visitors to view 
+ *    the masonry gallery.
+ * 3. Protected Writes: Only the authenticated owner of a path branch can create, 
+ *    update, or delete documents within that branch.
+ * 4. Structural Integrity: During creation and updates, we ensure that internal 
+ *    identifiers (if provided) remain consistent with the database paths to prevent 
+ *    cross-user data injection.
+ * 
+ * DENORMALIZATION FOR AUTHORIZATION
+ * We utilize "Path-Based Denormalization." Instead of storing an 'ownerId' field 
+ * inside the document and performing a read to check it, we use the {userId} 
+ * wildcard in the path. This allows for O(1) authorization checks.
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- GLOBAL HELPER FUNCTIONS ---
+
+    /**
+     * @description Basic check to see if a request is coming from an authenticated user.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user's UID matches the provided userId.
+     * Used for path-based authorization.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Validates ownership and ensures the document exists before 
+     * allowing modification or deletion.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for the Asset collection, representing portfolio media.
+     * @path /users/{userId}/assets/{assetId}
+     * @allow (get, list) by any user (public portfolio).
+     * @allow (create, update, delete) only by the user matching {userId}.
+     * @deny (write) if the requester is not the owner or is unauthenticated.
+     * @principle Hierarchical path-based ownership with public read access.
+     */
+    match /users/{userId}/assets/{assetId} {
+      
+      // Public Read Access: Portfolios are meant to be viewed by everyone.
+      allow get, list: if true;
+
+      // Ownership-based writes: Only the user defined in the path can manage these assets.
+      allow create: if isOwner(userId) && isValidAssetId(assetId);
+      
+      allow update: if isExistingOwner(userId) && isIdImmutable();
+      
+      allow delete: if isExistingOwner(userId);
+
+      // --- ASSET VALIDATION HELPERS ---
+
+      /**
+       * @description Ensures that if an 'id' field is sent in the payload, 
+       * it matches the assetId in the path for relational integrity.
+       */
+      function isValidAssetId(assetId) {
+        return !('id' in request.resource.data) || request.resource.data.id == assetId;
+      }
+
+      /**
+       * @description Prevents changing the internal 'id' of a document once created.
+       */
+      function isIdImmutable() {
+        return !('id' in request.resource.data) || request.resource.data.id == resource.data.id;
+      }
+    }
+
+    // --- FALLBACK ---
+    
+    /**
+     * @description Default deny for any paths not explicitly matched above.
+     */
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

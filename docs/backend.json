@@ -1,0 +1,74 @@
+{
+  "entities": {
+    "Asset": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Asset",
+      "type": "object",
+      "description": "Represents a single media asset (image or video) used in the portfolio, loaded from the `assets.csv` file. This entity forms the core content for the interactive masonry gallery.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Asset entity."
+        },
+        "url": {
+          "type": "string",
+          "description": "The URL to the asset file (image or video content).",
+          "format": "uri"
+        },
+        "caption": {
+          "type": "string",
+          "description": "A descriptive caption or title for the asset, displayed in the gallery overlay."
+        },
+        "tags": {
+          "type": "array",
+          "description": "A list of keywords or categories associated with the asset, used for filtering or display. This array is derived from a comma-separated string in the CSV.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "type": "string",
+          "description": "The media type of the asset, such as 'image' or 'video', indicating how it should be rendered."
+        }
+      },
+      "required": [
+        "id",
+        "url",
+        "caption",
+        "tags",
+        "type"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/assets/{assetId}",
+        "definition": {
+          "entityName": "Asset",
+          "schema": {
+            "$ref": "#/backend/entities/Asset"
+          },
+          "description": "Collection for individual media assets (images or videos) belonging to a specific user's portfolio. Each document represents an asset, containing its URL, caption, tags, and type. The `userId` in the path ensures authorization independence; rules can directly check `request.auth.uid == userId` for write access. Documents are publicly readable to display the portfolio content.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the portfolio owner."
+            },
+            {
+              "name": "assetId",
+              "description": "The unique identifier for the specific media asset."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and highly debuggable by adhering strictly to the core design principles and mandates. The primary entity, 'Asset', which represents individual media items in the portfolio, will be stored within a user-specific subcollection.\n\n**Authorization Independence via Denormalization:** The key to achieving authorization independence is the hierarchical path: `/users/{userId}/assets/{assetId}`. By embedding the `userId` (the portfolio owner's unique identifier) directly into the path for each `Asset` document, authorization rules can directly access the `userId` wildcard (e.g., `match /users/{userId}/assets/{assetId}`) without needing to perform `get()` operations on parent documents. For instance, a write rule can simply be `allow write: if request.auth.uid == userId;`. This makes security rules atomic, faster, and significantly easier to reason about and debug, as there are no brittle dependencies on data from other documents or collections.\n\n**QAPs (Rules are not Filters):** This structure inherently supports efficient and secure `list` operations. To display a specific user's portfolio, the application will query the collection `/users/{portfolioOwnerId}/assets`. The security rules can then grant `read` access to all documents within this collection (e.g., `allow read;`) if the portfolio is public, or `allow read: if request.auth.uid == userId;` if it's restricted to the owner. Since the query explicitly targets a specific user's assets, there is no need for Firestore security rules to act as filters; they simply validate the access request against the clearly defined scope. This ensures that the client only requests data it is explicitly authorized to access, preventing over-fetching and rule-based filtering overhead.\n\n**Structural Segregation:** All documents within the `/users/{userId}/assets` collection will be `Asset` entities belonging to that specific `userId` and are intended for public display within the portfolio. This ensures a homogeneous security posture for all documents in the collection (publicly readable, owner-writeable). If different states were introduced (e.g., 'draft' vs. 'published' assets), they would ideally be segregated into distinct collections to maintain uniform security requirements per collection, though currently, the `Asset` schema implies a single, published state.\n\n**Access Modeling:** The design leverages **Hierarchical Paths for User-Owned Data**. This pattern is robust for `1:N` relationships where a `User` owns many `Assets`. It provides clear ownership semantics and naturally aligns with the DBAC principle, where the `userId` in the path serves as the implicit 'owner' role. This approach scales well and simplifies future rule extensions.\n\nIn summary, this structure prioritizes security and maintainability, allowing for clear, efficient, and easily debuggable security rules while supporting the application's requirement for a dynamic, user-owned portfolio."
+  }
+}
